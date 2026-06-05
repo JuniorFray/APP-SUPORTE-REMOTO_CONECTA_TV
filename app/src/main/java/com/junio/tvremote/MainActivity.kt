@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -18,6 +19,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var instructionsView: TextView
     private lateinit var primaryButton: Button
     private lateinit var secondaryButton: Button
+    private lateinit var thirdButton: Button
+    private lateinit var fourthButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,12 +50,16 @@ class MainActivity : AppCompatActivity() {
 
         primaryButton = Button(this)
         secondaryButton = Button(this)
+        thirdButton = Button(this)
+        fourthButton = Button(this)
 
         layout.addView(titleView)
         layout.addView(statusView)
         layout.addView(instructionsView)
         layout.addView(primaryButton)
         layout.addView(secondaryButton)
+        layout.addView(thirdButton)
+        layout.addView(fourthButton)
 
         setContentView(layout)
         updateUi()
@@ -86,6 +93,9 @@ class MainActivity : AppCompatActivity() {
                 secondaryButton.text = "Atualizar tela"
                 secondaryButton.setOnClickListener { updateUi() }
                 secondaryButton.visibility = View.VISIBLE
+
+                thirdButton.visibility = View.GONE
+                fourthButton.visibility = View.GONE
             }
 
             !captureEnabled -> {
@@ -108,6 +118,9 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                 }
                 secondaryButton.visibility = View.VISIBLE
+
+                thirdButton.visibility = View.GONE
+                fourthButton.visibility = View.GONE
             }
 
             else -> {
@@ -115,15 +128,59 @@ class MainActivity : AppCompatActivity() {
                 instructionsView.text =
                     "A acessibilidade está ligada.\n" +
                     "A captura da tela foi permitida.\n\n" +
-                    "Seu app já pode continuar o próximo passo do controle remoto."
+                    "Teste agora os comandos principais do controle remoto."
 
-                primaryButton.text = "Iniciar captura novamente"
+                primaryButton.text = "HOME"
                 primaryButton.setOnClickListener {
-                    startActivity(Intent(this, ScreenCaptureActivity::class.java))
+                    val result = RemoteAccessibilityService.instance?.performGlobalHome() ?: false
+                    Toast.makeText(
+                        this,
+                        if (result) "Comando HOME enviado" else "Serviço não disponível",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 primaryButton.visibility = View.VISIBLE
 
-                secondaryButton.visibility = View.GONE
+                secondaryButton.text = "BACK"
+                secondaryButton.setOnClickListener {
+                    val result = RemoteAccessibilityService.instance?.performGlobalBack() ?: false
+                    Toast.makeText(
+                        this,
+                        if (result) "Comando BACK enviado" else "Serviço não disponível",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                secondaryButton.visibility = View.VISIBLE
+
+                thirdButton.text = "TAP CENTRO"
+                thirdButton.setOnClickListener {
+                    val root = window.decorView.rootView
+                    val centerX = root.width / 2f
+                    val centerY = root.height / 2f
+
+                    val service = RemoteAccessibilityService.instance
+                    if (service != null) {
+                        service.performTap(centerX, centerY)
+                        Toast.makeText(
+                            this,
+                            "Tap enviado para ($centerX, $centerY)",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Serviço não disponível",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                thirdButton.visibility = View.VISIBLE
+
+                fourthButton.text = "INICIAR CAPTURA NOVAMENTE"
+                fourthButton.setOnClickListener {
+                    startActivity(Intent(this, ScreenCaptureActivity::class.java))
+                }
+                fourthButton.visibility = View.VISIBLE
             }
         }
     }
