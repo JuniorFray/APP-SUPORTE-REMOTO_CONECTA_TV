@@ -1,0 +1,8 @@
+R_DEF: Internal format may change without notice
+local
+drawable ic_banner
+string accessibility_service_description
+string app_name
+style AppTheme
+style Theme.TVRemoteHost
+xml accessibility_service_config
