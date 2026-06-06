@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -17,8 +18,9 @@
         android:allowBackup="true"
         android:banner="@drawable/ic_banner"
         android:label="Suporte Remoto - Conecta TV"
+        android:supportsRtl="true"
         android:theme="@style/Theme.TVRemoteHost"
-        android:supportsRtl="true">
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".ScreenCaptureActivity"
@@ -26,8 +28,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:banner="@drawable/ic_banner">
+            android:banner="@drawable/ic_banner"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -40,6 +42,12 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+
+        <service
+            android:name=".RemoteConnectionService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <service
             android:name=".RemoteAccessibilityService"

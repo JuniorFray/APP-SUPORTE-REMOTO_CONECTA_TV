@@ -2,6 +2,7 @@ package com.junio.tvremote
 
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils
@@ -128,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                 instructionsView.text =
                     "A acessibilidade está ligada.\n" +
                     "A captura da tela foi permitida.\n\n" +
-                    "Teste agora os comandos principais do controle remoto."
+                    "Você já pode testar os comandos locais e iniciar a conexão remota com a Oracle."
 
                 primaryButton.text = "HOME"
                 primaryButton.setOnClickListener {
@@ -176,9 +177,24 @@ class MainActivity : AppCompatActivity() {
                 }
                 thirdButton.visibility = View.VISIBLE
 
-                fourthButton.text = "INICIAR CAPTURA NOVAMENTE"
+                fourthButton.text = "INICIAR CONEXÃO REMOTA"
                 fourthButton.setOnClickListener {
-                    startActivity(Intent(this, ScreenCaptureActivity::class.java))
+                    android.util.Log.d("RemoteConnectionSvc", "BOTAO iniciar conexao remota clicado")
+                    RemoteConnectionService.requestStartRemote()
+                    val intent = Intent(this, RemoteConnectionService::class.java).apply { action = "com.junio.tvremote.START_REMOTE" }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        android.util.Log.d("RemoteConnectionSvc", "startForegroundService chamado pelo botao")
+                        startForegroundService(intent)
+                    } else {
+                        android.util.Log.d("RemoteConnectionSvc", "startService chamado pelo botao")
+                        startService(intent)
+                    }
+
+                    Toast.makeText(
+                        this,
+                        "Tentando conectar na Oracle",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 fourthButton.visibility = View.VISIBLE
             }
@@ -207,3 +223,8 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 }
+
+
+
+
+
